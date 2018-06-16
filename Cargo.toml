@@ -1,0 +1,8 @@
+[package]
+name = "trickle"
+version = "0.1.0"
+authors = ["NerdyPepper <akshayoppiliappan@gmail.com>"]
+
+[dependencies]
+reqwest = { git = "https://github.com/seanmonstar/reqwest" }
+serde_json = { git = "https://github.com/serde-rs/json" }
