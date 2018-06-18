@@ -1,6 +1,5 @@
 pub fn url_gen(title: &str) -> String {
 
-//  /w/api.php?action=query&format=json&prop=extracts&titles=rust&explaintext=1
     title.replace(" ", "%20");
 
     // query config
