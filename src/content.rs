@@ -1,4 +1,4 @@
-pub fn url_gen(title: &str) -> String {
+pub fn query_url_gen(title: &str) -> String {
 
     title.replace(" ", "%20");
 
@@ -8,8 +8,24 @@ pub fn url_gen(title: &str) -> String {
     url.push_str("action=query&");
     url.push_str("format=json&");
     url.push_str("prop=extracts&");
-    url.push_str(format!("titles={}", title));
+    url.push_str(format!("titles={}&", title));
     url.push_str("explaintext=1");
+
+    url
+}
+
+pub fn search_url_gen(search: &str) -> String {
+    // /w/api.php?action=opensearch&format=json&search=dota%202&limit=5;
+    
+    search.replace(" ", "%20");
+
+    let url = "https://en.wikipedia.org";
+    url.push_str("w/api.php?");
+    url.push_str("action=opensearch&");
+    url.push_str("format=json&");
+    url.push_str(format!("search={}&", search));
+    url.push_str("limit=5");
+
 }
 
 pub fn get_extract(title: &str, red: Response) -> String {
