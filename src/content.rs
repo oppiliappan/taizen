@@ -1,3 +1,9 @@
+extern crate reqwest;
+extern crate serde_json;
+extern crate cursive;
+
+reqwest::Response;
+
 pub fn query_url_gen(title: &str) -> String {
 
     title.replace(" ", "%20");
@@ -16,7 +22,7 @@ pub fn query_url_gen(title: &str) -> String {
 
 pub fn search_url_gen(search: &str) -> String {
     // /w/api.php?action=opensearch&format=json&search=dota%202&limit=5;
-    
+
     search.replace(" ", "%20");
 
     let url = "https://en.wikipedia.org";
@@ -28,7 +34,7 @@ pub fn search_url_gen(search: &str) -> String {
 
 }
 
-pub fn get_extract(title: &str, red: Response) -> String {
+pub fn get_extract(title: &str, res: Response) -> String {
     let mut v: Value = serde_json::from_str(&res.text().unwrap()).unwrap();
 
     // Fetch page and pageids of requested title(s)
@@ -46,8 +52,17 @@ pub fn get_extract(title: &str, red: Response) -> String {
 }
 
 pub fn get_title(title: &str, res: Response) -> String {
-    let mut v: Value = serde_json::from_str(&res.text().unwrap()).unwrap_or_else( |e| {
-        panic!("Recieved invalid json");
-    } );
+    let mut v: Value = serde_json::from_str(&res.text().unwrap())
+        .unwrap_or_else( |e| {
+            panic!("Recieved error {:?}", e);
+        } );
     format!("{}", &v["query"]["normalized"][0]["to"])
+}
+
+pub fn get_search_results(search: &str, res: Response) -> Vec<String> {
+    let mut v: Value = serde_json::from_str(&res.text().unwrap())
+        .unwrap_or_else( |e| {
+            panic!("Recieved error {:?}", e);
+        } );
+    &v[1]
 }
