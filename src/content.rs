@@ -49,7 +49,7 @@ pub fn get_extract(title: &str) -> Result<String, reqwest::Error> {
 
     let mut v: Value = match serde_json::from_str(&res.text()?) {
         Ok(x) => x,
-        Err(x) => ,
+        Err(x) => panic!("Failed to parse json\nReceived error {}", x),
     };
     let pageid = &v["query"]["pageids"][0];
     let pageid_str = match pageid {
@@ -57,8 +57,16 @@ pub fn get_extract(title: &str) -> Result<String, reqwest::Error> {
         _ => panic!("wut"),
     };
 
-    Ok(format!("{}", &v["query"]["pages"][pageid_str]["extract"]))
+    match &v["query"]["pages"][pageid_str]["extract"] {
+        Value::String(extract) => {
 
+            // format to plain text
+            extract.replace("\\\\", "\\");
+            Ok(format!("{}", extract))
+        }
+        // ignore non strings
+        _ => Ok(format!(""))
+    }
 }
 
 pub fn get_title(title: &str, mut res: Response) -> String {
@@ -69,60 +77,51 @@ pub fn get_title(title: &str, mut res: Response) -> String {
     format!("{}", &v["query"]["normalized"][0]["to"])
 }
 
-pub fn get_search_results(search: &str) -> Vec<String> {
+pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
 
     let url = search_url_gen(search);
-    let res = reqwest::get(&url[..]);
+    let res = reqwest::get(&url[..])?;
+    let mut v: Value = serde_json::from_str(&res.text().unwrap())
+        .unwrap_or_else( |e| {
+            panic!("Recieved error {:?}", e);
+        } );
 
-    match res {
-        Ok(mut res) => {
-            if res.status().is_success() {
-                let mut v: Value = serde_json::from_str(&res.text().unwrap())
-                    .unwrap_or_else( |e| {
-                        panic!("Recieved error {:?}", e);
-                    } );
-
-                let mut results: Vec<String> = vec![];
-                for item in v[1].as_array().unwrap() {
-                    match item {
-                        Value::String(x) => results.push(x.to_string()),
-                        _ => (),
-                    }
-                }
-                results
-            } else {
-                panic!("Encountered Error {}", res.status());
-            }
-        },
-        _ => {
-            panic!("Unable to parse url");
+    let mut results: Vec<String> = vec![];
+    for item in v[1].as_array().unwrap() {
+        match item {
+            Value::String(x) => results.push(x.to_string()),
+            // ignore non strings
+            _ => (),
         }
     }
-
+    Ok(results)
 }
 
-pub fn pop_error(s: &mut Cursive, msg: &str) {
-    s.add_layer(Dialog::text("An error occurred\n:(")
-                .title("Oopsie woopsie")
+pub fn pop_error(s: &mut Cursive, msg: String) {
+    s.add_layer(Dialog::text(format!("{}", msg))
+                .title("Error")
                 .button("Ok", |s| s.quit()));
 }
 
-fn handler(e: reqwest::Error) -> &str {
+pub fn handler(e: reqwest::Error) -> String {
+    let msg: String = String::new();
     if e.is_http() {
         match e.url() {
-            None => format!("No URL given"),
-            Some(url) => format!("Problem making request to: {}", url),
+            None => msg = format!("No URL given"),
+            Some(url) => msg = format!("Problem making request to: {}", url),
         }
     }
     // Inspect the internal error and output it
     if e.is_serialization() {
         let serde_error = match e.get_ref() {
-            None => return,
             Some(err) => err,
         };
-        format!("problem parsing information {}", serde_error)
+        msg.push(format!("\nproblem parsing information {}", serde_error));
+    }
 
     if e.is_redirect() {
-        format!("server redirecting too many times or making loop")
+        msg.push(format!("server redirecting too many times or making loop"));
     }
+
+    msg
 }
