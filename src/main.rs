@@ -9,6 +9,7 @@ use cursive::traits::*;
 use cursive::views::{TextView, Dialog, EditView, SelectView};
 
 pub mod content;
+use content::*;
 
 fn main() {
     // Initial setup
@@ -25,8 +26,12 @@ fn search(s: &mut Cursive){
 
     fn go(s: &mut Cursive, search: &str) {
         s.pop_layer();
-        let results = content::get_search_results(search);
-        s.add_layer(SelectView::new().with_all_str(results));
+        let mut result;
+        match get_search_results(search) {
+            Ok(x) => result = x,
+            Err(e) => pop_error(s,handler(e)),
+        };
+        let choose_result = SelectView::new().with_all_str(result);
     }
 
     s.add_layer(Dialog::around(EditView::new()
