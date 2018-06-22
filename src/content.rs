@@ -9,7 +9,7 @@ use reqwest::Response;
 
 pub fn query_url_gen(title: &str) -> String {
 
-    title.replace(" ", "%20");
+//    /w/api.php?action=query&format=json&prop=extracts&titles=dota_2&exlimit=20&explaintext=1
 
     // query config
     let mut url = String::from("https://en.wikipedia.org");
@@ -17,6 +17,7 @@ pub fn query_url_gen(title: &str) -> String {
     url.push_str("action=query&");
     url.push_str("format=json&");
     url.push_str("prop=extracts&");
+    url.push_str("indexpageids=1&");
     url.push_str("titles=");
     url.push_str(title);
     url.push_str("&");
@@ -43,11 +44,9 @@ pub fn search_url_gen(search: &str) -> String {
 
 }
 
-pub fn get_extract(title: &str) -> Result<String, reqwest::Error> {
-    let url = query_url_gen(title);
-    let res = reqwest::get(&url[..])?;
+pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
 
-    let mut v: Value = match serde_json::from_str(&res.text()?) {
+    let v: Value = match serde_json::from_str(&res.text()?) {
         Ok(x) => x,
         Err(x) => panic!("Failed to parse json\nReceived error {}", x),
     };
@@ -69,19 +68,19 @@ pub fn get_extract(title: &str) -> Result<String, reqwest::Error> {
     }
 }
 
-pub fn get_title(title: &str, mut res: Response) -> String {
-    let mut v: Value = serde_json::from_str(&res.text().unwrap())
+pub fn get_title(title: &str, mut res: Response) -> Result<String, reqwest::Error> {
+    let v: Value = serde_json::from_str(&res.text()?)
         .unwrap_or_else( |e| {
             panic!("Recieved error {:?}", e);
         } );
-    format!("{}", &v["query"]["normalized"][0]["to"])
+    Ok(format!("{}", &v["query"]["normalized"][0]["to"]))
 }
 
 pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
 
     let url = search_url_gen(search);
-    let res = reqwest::get(&url[..])?;
-    let mut v: Value = serde_json::from_str(&res.text().unwrap())
+    let mut res = reqwest::get(&url[..])?;
+    let v: Value = serde_json::from_str(&res.text().unwrap())
         .unwrap_or_else( |e| {
             panic!("Recieved error {:?}", e);
         } );
@@ -99,28 +98,20 @@ pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
 
 pub fn pop_error(s: &mut Cursive, msg: String) {
     s.add_layer(Dialog::text(format!("{}", msg))
-                .title("Error")
                 .button("Ok", |s| s.quit()));
 }
 
 pub fn handler(e: reqwest::Error) -> String {
-    let msg: String = String::new();
+    let mut msg: String = String::new();
     if e.is_http() {
         match e.url() {
-            None => msg = format!("No URL given"),
-            Some(url) => msg = format!("Problem making request to: {}", url),
+            None => msg.push_str(&format!("No URL given")),
+            Some(url) => msg.push_str(&format!("Problem making request to: {}", url)),
         }
-    }
-    // Inspect the internal error and output it
-    if e.is_serialization() {
-        let serde_error = match e.get_ref() {
-            Some(err) => err,
-        };
-        msg.push(format!("\nproblem parsing information {}", serde_error));
     }
 
     if e.is_redirect() {
-        msg.push(format!("server redirecting too many times or making loop"));
+        msg.push_str(&format!("server redirecting too many times or making loop"));
     }
 
     msg
