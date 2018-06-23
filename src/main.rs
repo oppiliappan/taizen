@@ -15,6 +15,9 @@ fn main() {
 
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
+    main.add_global_callback('t', |s| match s.pop_layer() {
+        _ => ()
+    });
 
     main.run();
 }
@@ -30,21 +33,7 @@ fn search(s: &mut Cursive){
         };
         let choose_result = SelectView::<String>::new()
             .with_all_str(result)
-            .on_submit(|s: &mut Cursive, name: &str| {
-                s.pop_layer();
-
-                let url = query_url_gen(&name.replace(" ", "_"));
-                let res = reqwest::get(&url).unwrap();
-
-                let mut extract = String::new();
-
-                match content::get_extract(res) {
-                    Ok(x) => extract = x,
-                    Err(e) => pop_error(s, content::handler(e))
-                };
-
-                s.add_layer(TextView::new(extract));
-            });
+            .on_submit(on_submit);
         s.add_layer(Dialog::around(choose_result)
                     .title("Search Results"));
     }
@@ -65,20 +54,20 @@ fn search(s: &mut Cursive){
                 }));
 }
 
-// fn on_submit(s: &mut Cursive, name: &String) {
-//     s.pop_layer();
-// 
-//     let title = name.replace(" ", "_");
-//     let url = query_url_gen(&title);
-//     let res = reqwest::get(&url).unwrap();
-// 
-//     let mut extract = String::new();
-// 
-//     match content::get_extract(res) {
-//
-//         Ok(x) => extract = x,
-//         Err(e) => pop_error(s, content::handler(e))
-//     };
-// 
-//     s.add_layer(Dialog::around(TextView::new(extract)));
-// }
+fn on_submit(s: &mut Cursive, name: &String) {
+    s.pop_layer();
+
+    let title = name.replace(" ", "_");
+    let url = query_url_gen(&title);
+    let res = reqwest::get(&url).unwrap();
+
+    let mut extract = String::new();
+
+    match content::get_extract(res) {
+
+        Ok(x) => extract = x,
+        Err(e) => pop_error(s, content::handler(e))
+    };
+
+    s.add_layer(TextView::new(extract));
+}
