@@ -3,8 +3,9 @@ extern crate serde_json;
 extern crate cursive;
 
 use cursive::Cursive;
+use cursive::align::HAlign;
 use cursive::traits::*;
-use cursive::views::{TextView, Dialog, EditView, SelectView};
+use cursive::views::{TextView, Dialog, EditView, SelectView, LinearLayout, DummyView};
 
 pub mod content;
 use content::*;
@@ -57,17 +58,22 @@ fn search(s: &mut Cursive){
 fn on_submit(s: &mut Cursive, name: &String) {
     s.pop_layer();
 
-    let title = name.replace(" ", "_");
-    let url = query_url_gen(&title);
+    let heading: String = name.clone();
+    let url = query_url_gen(&name.replace(" ", "_"));
     let res = reqwest::get(&url).unwrap();
 
     let mut extract = String::new();
 
-    match content::get_extract(res) {
-
+    match get_extract(res) {
         Ok(x) => extract = x,
-        Err(e) => pop_error(s, content::handler(e))
+        Err(e) => pop_error(s, handler(e))
     };
 
-    s.add_layer(TextView::new(extract));
+    s.add_layer(
+        LinearLayout::vertical()
+        .child(TextView::new(heading).h_align(HAlign::Center))
+        .child(DummyView.fixed_height(1))
+        .child(TextView::new(extract)
+               .fixed_width(85))
+        );
 }
