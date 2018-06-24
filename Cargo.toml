@@ -1,5 +1,5 @@
 [package]
-name = "trickle"
+name = "taizen"
 version = "0.1.0"
 authors = ["NerdyPepper <akshayoppiliappan@gmail.com>"]
 
@@ -7,3 +7,4 @@ authors = ["NerdyPepper <akshayoppiliappan@gmail.com>"]
 reqwest = { git = "https://github.com/seanmonstar/reqwest" }
 serde_json = { git = "https://github.com/serde-rs/json" }
 cursive = { git = "https://github.com/gyscos/Cursive" }
+regex = "1"
