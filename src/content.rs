@@ -8,9 +8,6 @@ use serde_json::Value;
 use reqwest::Response;
 
 pub fn query_url_gen(title: &str) -> String {
-
-//    /w/api.php?action=query&format=json&prop=extracts&titles=dota_2&exlimit=20&explaintext=1
-
     // query config
     let mut url = String::from("https://en.wikipedia.org");
     url.push_str("/w/api.php?");
@@ -22,15 +19,11 @@ pub fn query_url_gen(title: &str) -> String {
     url.push_str(title);
     url.push_str("&");
     url.push_str("explaintext=1");
-
     url
 }
 
 pub fn search_url_gen(search: &str) -> String {
-    // /w/api.php?action=opensearch&format=json&search=dota%202&limit=5;
-
     search.replace(" ", "%20");
-
     let mut url = String::from("https://en.wikipedia.org");
     url.push_str("/w/api.php?");
     url.push_str("action=opensearch&");
@@ -38,14 +31,13 @@ pub fn search_url_gen(search: &str) -> String {
     url.push_str("search=");
     url.push_str(search);
     url.push_str("&");
-    url.push_str("limit=5");
+    url.push_str("limit=10");
 
     url
 
 }
 
 pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
-
     let v: Value = match serde_json::from_str(&res.text()?) {
         Ok(x) => x,
         Err(x) => panic!("Failed to parse json\nReceived error {}", x),
@@ -58,9 +50,9 @@ pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
 
     match &v["query"]["pages"][pageid_str]["extract"] {
         Value::String(extract) => {
-
             // format to plain text
             extract.replace("\\\\", "\\");
+
             Ok(format!("{}", extract))
         }
         // ignore non strings
@@ -68,16 +60,7 @@ pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
     }
 }
 
-pub fn get_title(title: &str, mut res: Response) -> Result<String, reqwest::Error> {
-    let v: Value = serde_json::from_str(&res.text()?)
-        .unwrap_or_else( |e| {
-            panic!("Recieved error {:?}", e);
-        } );
-    Ok(format!("{}", &v["query"]["normalized"][0]["to"]))
-}
-
 pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
-
     let url = search_url_gen(search);
     let mut res = reqwest::get(&url[..])?;
     let v: Value = serde_json::from_str(&res.text().unwrap())
