@@ -13,12 +13,15 @@ use content::*;
 fn main() {
     // Initial setup
     let mut main = Cursive::default();
+    let mut articles_vec = vec![];
 
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
     main.add_global_callback('t', |s| match s.pop_layer() {
-        _ => ()
-    });
+        Some(_) => (),
+        None => s.add_layer( Dialog::text("Stack is empty!")
+                  .title("Error")
+                )});
 
     main.run();
 }
@@ -69,11 +72,19 @@ fn on_submit(s: &mut Cursive, name: &String) {
         Err(e) => pop_error(s, handler(e))
     };
 
-    s.add_layer(
-        LinearLayout::vertical()
-        .child(TextView::new(heading).h_align(HAlign::Center))
-        .child(DummyView.fixed_height(1))
-        .child(TextView::new(extract)
-               .fixed_width(85))
-        );
+    let article_stack = LinearLayout::horizontal()
+        .child(TextView::new("Stack"))
+        .child(DummyView.fixed_height(1));
+
+    s.add_layer(Dialog::around(
+            LinearLayout::horizontal()
+            .child(
+                LinearLayout::vertical()
+                .child(TextView::new(heading).h_align(HAlign::Center))
+                .child(DummyView.fixed_height(1))
+                .child(TextView::new(extract))
+                )
+            .child(article_stack)
+            )
+               );
 }
