@@ -5,7 +5,7 @@ extern crate cursive;
 use cursive::Cursive;
 use cursive::align::HAlign;
 use cursive::traits::*;
-use cursive::views::{TextView, Dialog, EditView, SelectView, LinearLayout, DummyView};
+use cursive::views::{ TextView, Dialog, EditView, SelectView, LinearLayout, DummyView };
 
 pub mod content;
 use content::*;
@@ -13,7 +13,6 @@ use content::*;
 fn main() {
     // Initial setup
     let mut main = Cursive::default();
-    let mut articles_vec = vec![];
 
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
@@ -72,19 +71,11 @@ fn on_submit(s: &mut Cursive, name: &String) {
         Err(e) => pop_error(s, handler(e))
     };
 
-    let article_stack = LinearLayout::horizontal()
-        .child(TextView::new("Stack"))
-        .child(DummyView.fixed_height(1));
-
-    s.add_layer(Dialog::around(
-            LinearLayout::horizontal()
-            .child(
-                LinearLayout::vertical()
-                .child(TextView::new(heading).h_align(HAlign::Center))
-                .child(DummyView.fixed_height(1))
-                .child(TextView::new(extract))
-                )
-            .child(article_stack)
-            )
-               );
+    s.add_layer(
+        Dialog::around(TextView::new(extract))
+        .title(heading)
+        .padding_right(5)
+        .padding_left(5)
+        .max_width(80)
+        );
 }
