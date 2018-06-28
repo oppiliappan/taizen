@@ -1,11 +1,15 @@
 extern crate reqwest;
 extern crate serde_json;
 extern crate cursive;
+extern crate regex;
 
+use cursive::theme::{ BaseColor, Color, Effect, Style };
+use cursive::utils::markup::StyledString;
 use cursive::Cursive;
 use cursive::views::Dialog;
 use serde_json::Value;
 use reqwest::Response;
+use self::regex::Regex;
 
 pub fn query_url_gen(title: &str) -> String {
     // query config
@@ -59,6 +63,33 @@ pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
         // ignore non strings
         _ => Ok(format!(""))
     }
+}
+
+pub fn extract_formatter(extract: String) -> StyledString {
+    let mut formatted = StyledString::new();
+
+    let heading= Regex::new(r"^== (?P<d>.*) ==$").unwrap();
+    let subheading= Regex::new(r"^=== (?P<d>.*) ===$").unwrap();
+
+    for line in extract.lines() {
+        if heading.is_match(line) {
+            formatted.append(
+                StyledString::styled(
+                    heading.replace(line, "$d"), Effect::Bold
+                    )
+                );
+        } else if subheading.is_match(line) {
+            formatted.append(
+                StyledString::styled(
+                    subheading.replace(line, "$d"), Effect::Italic
+                    )
+                );
+        } else {
+            formatted.append(StyledString::plain(line));
+        }
+    }
+
+    formatted
 }
 
 pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
