@@ -70,6 +70,7 @@ pub fn extract_formatter(extract: String) -> StyledString {
 
     let heading= Regex::new(r"^== (?P<d>.*) ==$").unwrap();
     let subheading= Regex::new(r"^=== (?P<d>.*) ===$").unwrap();
+    let subsubheading= Regex::new(r"^==== (?P<d>.*) ====$").unwrap();
 
     for line in extract.lines() {
         if heading.is_match(line) {
@@ -82,6 +83,12 @@ pub fn extract_formatter(extract: String) -> StyledString {
             formatted.append(
                 StyledString::styled(
                     subheading.replace(line, "$d"), Effect::Italic
+                    )
+                );
+        } else if subsubheading.is_match(line) {
+            formatted.append(
+                StyledString::styled(
+                    subsubheading.replace(line, "$d"), Effect::Underline
                     )
                 );
         } else {
