@@ -87,6 +87,8 @@ pub fn extract_formatter(extract: String) -> StyledString {
         } else {
             formatted.append(StyledString::plain(line));
         }
+
+        formatted.append(StyledString::plain("\n"))
     }
 
     formatted
