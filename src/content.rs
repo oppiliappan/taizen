@@ -32,7 +32,7 @@ pub fn search_url_gen(search: &str) -> String {
     url.push_str("search=");
     url.push_str(search);
     url.push_str("&");
-    url.push_str("limit=10");
+    url.push_str("limit=20");
 
     url
 
