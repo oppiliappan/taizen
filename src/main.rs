@@ -33,6 +33,7 @@ fn search(s: &mut Cursive){
             .on_submit(on_submit);
         s.add_layer(Dialog::around(choose_result)
                     .title("Search Results")
+                    .button("Cancel", |s| match s.pop_layer() { _ => () })
                     .fixed_size(( 45,8 )));
     }
 
@@ -68,7 +69,7 @@ fn on_submit(s: &mut Cursive, name: &String) {
 
     s.add_layer(
         Dialog::around(
-            OnEventView::new(TextView::new(extract))
+            OnEventView::new(TextView::new(extract_formatter(extract)))
             .on_event('t', |s| match s.pop_layer() { _ => () })
             )
         .title(heading)
