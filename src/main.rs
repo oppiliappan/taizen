@@ -3,9 +3,8 @@ extern crate serde_json;
 extern crate cursive;
 
 use cursive::Cursive;
-use cursive::align::HAlign;
 use cursive::traits::*;
-use cursive::views::{ TextView, Dialog, EditView, SelectView, LinearLayout, DummyView };
+use cursive::views::{ TextView, Dialog, EditView, SelectView, OnEventView };
 
 pub mod content;
 use content::*;
@@ -16,11 +15,6 @@ fn main() {
 
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
-    main.add_global_callback('t', |s| match s.pop_layer() {
-        Some(_) => (),
-        None => s.add_layer( Dialog::text("Stack is empty!")
-                  .title("Error")
-                )});
 
     main.run();
 }
@@ -38,13 +32,14 @@ fn search(s: &mut Cursive){
             .with_all_str(result)
             .on_submit(on_submit);
         s.add_layer(Dialog::around(choose_result)
-                    .title("Search Results"));
+                    .title("Search Results")
+                    .fixed_size(( 45,8 )));
     }
 
     s.add_layer(Dialog::around(EditView::new()
                                .on_submit(go)
                                .with_id("search")
-                               .fixed_size(( 15,2 )))
+                               )
                 .title("Search for a page")
                 .button("Go", |s| {
                     let search_txt = s.call_on_id( "search", |v: &mut EditView| {
@@ -72,10 +67,13 @@ fn on_submit(s: &mut Cursive, name: &String) {
     };
 
     s.add_layer(
-        Dialog::around(TextView::new(extract))
+        Dialog::around(
+            OnEventView::new(TextView::new(extract))
+            .on_event('t', |s| match s.pop_layer() { _ => () })
+            )
         .title(heading)
-        .padding_right(5)
-        .padding_left(5)
+        .padding_right(2)
+        .padding_left(2)
         .max_width(80)
         );
 }
