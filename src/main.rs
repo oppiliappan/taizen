@@ -6,44 +6,19 @@ use cursive::Cursive;
 use cursive::traits::*;
 use cursive::views::{ TextView, Dialog, EditView, 
     SelectView, OnEventView };
-use cursive::theme::PaletteColor::*;
-use cursive::theme::Color::*;
-use cursive::theme::BaseColor::*;
-use cursive::theme;
-use cursive::theme::BorderStyle;
 
 pub mod content;
 use content::*;
+
+pub mod theme;
+use theme::*;
 
 fn main() {
     // Initial setup
     let mut main = Cursive::default();
 
-    // basic theme
-    let mut wikitheme = main.current_theme().clone();
-
-    // set the theme's
-    // shadow
-    wikitheme.shadow = false;
-    // border
-    wikitheme.borders = BorderStyle::Simple;
-    // and palette
-    let mut palette: theme::Palette = theme::Palette::default();
-    palette.set_color("background"         , Dark(Black));
-    palette.set_color("shadow"             , Dark(White));
-    palette.set_color("view"               , Dark(Black));
-    palette.set_color("primary"            , Dark(White));
-    palette.set_color("secondary"          , Dark(Blue));
-    palette.set_color("teritary"           , Dark(Green));
-    palette.set_color("title_primary"      , Dark(Blue));
-    palette.set_color("title_secondary"    , Dark(Green));
-    palette.set_color("highlight"          , Dark(Blue));
-    palette.set_color("highlight_inactive" , Dark(Red));
-
-    wikitheme.palette = palette;
-
     // set theme
-    main.set_theme(wikitheme);
+    main.set_theme(theme_gen());
 
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
@@ -82,7 +57,8 @@ fn search(s: &mut Cursive){
                 })
                 .button("Cancel", |s| match s.pop_layer(){
                     _ => ()
-                }));
+                })
+                .fixed_size(( 35, 5 )));
 }
 
 fn on_submit(s: &mut Cursive, name: &String) {
