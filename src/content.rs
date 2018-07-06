@@ -3,7 +3,7 @@ extern crate serde_json;
 extern crate cursive;
 extern crate regex;
 
-use cursive::theme::{ BaseColor, Color, Effect, Style };
+use cursive::theme::Effect;
 use cursive::utils::markup::StyledString;
 use cursive::Cursive;
 use cursive::views::Dialog;
@@ -22,6 +22,7 @@ pub fn query_url_gen(title: &str) -> String {
     url.push_str("titles=");
     url.push_str(title);
     url.push_str("&");
+    url.push_str("redirects=1&");
     url.push_str("explaintext=1");
     url
 }
