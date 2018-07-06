@@ -64,23 +64,26 @@ fn search(s: &mut Cursive){
 fn on_submit(s: &mut Cursive, name: &String) {
     s.pop_layer();
 
+    // get article data
     let heading: String = name.clone();
     let url = query_url_gen(&name.replace(" ", "_"));
     let res = reqwest::get(&url).unwrap();
     let mut extract = String::new();
 
+    // handle errors if any
     match get_extract(res) {
         Ok(x) => extract = x,
         Err(e) => pop_error(s, handler(e))
     };
 
+    // get the act together
+    let mut article = TextView::new(heading);
+    article.append(String::from("\n\n"));
+    article.append(extract_formatter(extract));
     s.add_layer(
-        Dialog::around(
-            OnEventView::new(TextView::new(extract_formatter(extract)))
-            .on_event('t', |s| match s.pop_layer() { _ => () })
+        OnEventView::new(
+            article.fixed_width(72)
             )
-        .title(heading)
-        .padding_right(2)
-        .padding_left(2)
+        .on_event('t', |s| match s.pop_layer() { _ => () })
         );
 }
