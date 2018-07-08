@@ -4,8 +4,8 @@ extern crate cursive;
 
 use cursive::Cursive;
 use cursive::traits::*;
-use cursive::views::{ TextView, Dialog, EditView, 
-    SelectView, OnEventView };
+use cursive::views::{ TextView, Dialog, EditView,
+    SelectView, OnEventView, LinearLayout };
 
 pub mod content;
 use content::*;
@@ -37,7 +37,10 @@ fn search(s: &mut Cursive){
         };
         let choose_result = SelectView::<String>::new()
             .with_all_str(result)
-            .on_submit(on_submit);
+            .on_submit(|s, name| {
+                s.pop_layer();
+                on_submit(s, name);
+            });
         s.add_layer(Dialog::around(choose_result)
                     .title("Search Results")
                     .button("Cancel", |s| match s.pop_layer() { _ => () })
@@ -62,17 +65,20 @@ fn search(s: &mut Cursive){
 }
 
 fn on_submit(s: &mut Cursive, name: &String) {
-    s.pop_layer();
-
     // get article data
     let heading: String = name.clone();
     let url = query_url_gen(&name.replace(" ", "_"));
-    let res = reqwest::get(&url).unwrap();
+    let mut res = reqwest::get(&url).unwrap();
     let mut extract = String::new();
+    let mut link_vec: Vec<String> = vec![];
 
     // handle errors if any
-    match get_extract(res) {
+    match get_extract(&mut res) {
         Ok(x) => extract = x,
+        Err(e) => pop_error(s, handler(e))
+    };
+    match get_links(&mut res) {
+        Ok(x) => link_vec = x,
         Err(e) => pop_error(s, handler(e))
     };
 
@@ -80,10 +86,18 @@ fn on_submit(s: &mut Cursive, name: &String) {
     let mut article = TextView::new(heading);
     article.append(String::from("\n\n"));
     article.append(extract_formatter(extract));
+
+    let links = SelectView::<String>::new()
+        .with_all_str(link_vec)
+        .on_submit(on_submit);
     s.add_layer(
-        OnEventView::new(
-            article.fixed_width(72)
-            )
-        .on_event('t', |s| match s.pop_layer() { _ => () })
+        LinearLayout::horizontal()
+        .child(
+            OnEventView::new(
+                article.fixed_width(72)
+                )
+            .on_event('t', |s| match s.pop_layer() { _ => () })
+              )
+        .child(links)
         );
 }
