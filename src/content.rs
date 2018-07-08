@@ -43,7 +43,7 @@ pub fn search_url_gen(search: &str) -> String {
 
 }
 
-pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
+pub fn get_extract(res: &mut Response) -> Result<String, reqwest::Error> {
     let v: Value = match serde_json::from_str(&res.text()?) {
         Ok(x) => x,
         Err(x) => panic!("Failed to parse json\nReceived error {}", x),
@@ -62,7 +62,7 @@ pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
             Ok(format!("{}", extract))
         }
         // ignore non strings
-        _ => Ok(format!(""))
+        _ => Ok(format!("This page has been deleted or moved"))
     }
 }
 
@@ -119,6 +119,33 @@ pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
         }
     }
     Ok(results)
+}
+
+pub fn get_links(res: &mut Response) -> Result<Vec<String>, reqwest::Error> {
+    let v: Value = match serde_json::from_str(&res.text()?) {
+        Ok(x) => x,
+        Err(x) => panic!("Failed to parse json\nReceived error {}", x),
+    };
+    let pageid = &v["query"]["pageids"][0];
+    let pageid_str = match pageid {
+        Value::String(id) => id,
+        _ => panic!("wut"),
+    };
+
+    let mut links = vec![];
+    match &v["query"]["pages"][pageid_str]["links"] {
+        Value::Array(arr) => {
+            for item in arr {
+                match item["title"] {
+                    Value::String(ref title) => links.push(title.to_string()),
+                    _ => links.push(String::from("lol"))
+                }
+            }
+        },
+        _ => links.push(String::from("lol"))
+    };
+
+    Ok(links)
 }
 
 pub fn pop_error(s: &mut Cursive, msg: String) {
