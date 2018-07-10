@@ -37,7 +37,7 @@ fn search(s: &mut Cursive){
         };
         let choose_result = SelectView::<String>::new()
             .with_all_str(result)
-            .on_submit(|s, name| {
+            .on_submit(|s, name|{
                 s.pop_layer();
                 on_submit(s, name);
             });
@@ -68,16 +68,17 @@ fn on_submit(s: &mut Cursive, name: &String) {
     // get article data
     let heading: String = name.clone();
     let url = query_url_gen(&name.replace(" ", "_"));
-    let mut res = reqwest::get(&url).unwrap();
     let mut extract = String::new();
     let mut link_vec: Vec<String> = vec![];
 
     // handle errors if any
-    match get_extract(&mut res) {
+    let res = reqwest::get(&url).unwrap();
+    match get_extract(res) {
         Ok(x) => extract = x,
         Err(e) => pop_error(s, handler(e))
     };
-    match get_links(&mut res) {
+    let res = reqwest::get(&url).unwrap();
+    match get_links(res) {
         Ok(x) => link_vec = x,
         Err(e) => pop_error(s, handler(e))
     };
@@ -90,6 +91,7 @@ fn on_submit(s: &mut Cursive, name: &String) {
     let links = SelectView::<String>::new()
         .with_all_str(link_vec)
         .on_submit(on_submit);
+
     s.add_layer(
         LinearLayout::horizontal()
         .child(
