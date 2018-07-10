@@ -14,6 +14,6 @@ cargo run
 
 Taizen uses a stack like model. Articles are opened on a new layer, and traversing the 
 stack involves popping the uppermost layer.  
-Hit `s` to search
-Hit `q` to quit
-Hit `t` to pop a layer from the article stack
+Hit `s` to search  
+Hit `q` to quit  
+Hit `t` to pop a layer from the article stack  
