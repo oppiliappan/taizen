@@ -17,7 +17,7 @@ pub fn query_url_gen(title: &str) -> String {
     url.push_str("/w/api.php?");
     url.push_str("action=query&");
     url.push_str("format=json&");
-    url.push_str("prop=extracts&");
+    url.push_str("prop=extracts%7Clinks&");
     url.push_str("indexpageids=1&");
     url.push_str("titles=");
     url.push_str(title);
@@ -38,12 +38,10 @@ pub fn search_url_gen(search: &str) -> String {
     url.push_str(search);
     url.push_str("&");
     url.push_str("limit=20");
-
     url
-
 }
 
-pub fn get_extract(res: &mut Response) -> Result<String, reqwest::Error> {
+pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
     let v: Value = match serde_json::from_str(&res.text()?) {
         Ok(x) => x,
         Err(x) => panic!("Failed to parse json\nReceived error {}", x),
@@ -121,7 +119,7 @@ pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
     Ok(results)
 }
 
-pub fn get_links(res: &mut Response) -> Result<Vec<String>, reqwest::Error> {
+pub fn get_links(mut res: Response) -> Result<Vec<String>, reqwest::Error> {
     let v: Value = match serde_json::from_str(&res.text()?) {
         Ok(x) => x,
         Err(x) => panic!("Failed to parse json\nReceived error {}", x),
