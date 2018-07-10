@@ -4,8 +4,11 @@ extern crate cursive;
 
 use cursive::Cursive;
 use cursive::traits::*;
-use cursive::views::{ TextView, Dialog, EditView,
-    SelectView, OnEventView, LinearLayout };
+use cursive::views::{ 
+    TextView, Dialog, EditView,
+    SelectView, OnEventView, LinearLayout,
+    DummyView
+};
 
 pub mod content;
 use content::*;
@@ -84,22 +87,21 @@ fn on_submit(s: &mut Cursive, name: &String) {
     };
 
     // get the act together
-    let mut article = TextView::new(heading);
-    article.append(String::from("\n\n"));
-    article.append(extract_formatter(extract));
+    let mut article_content = TextView::new(heading);
+    article_content.append(String::from("\n\n"));
+    article_content.append(extract_formatter(extract));
 
     let links = SelectView::<String>::new()
         .with_all_str(link_vec)
         .on_submit(on_submit);
 
     s.add_layer(
-        LinearLayout::horizontal()
-        .child(
-            OnEventView::new(
-                article.fixed_width(72)
-                )
-            .on_event('t', |s| match s.pop_layer() { _ => () })
-              )
-        .child(links)
+        OnEventView::new(
+            LinearLayout::horizontal()
+            .child(article_content.fixed_width(72))
+            .child(DummyView)
+            .child(links)
+            )
+        .on_event('t', |s| match s.pop_layer() { _ => () })
         );
 }
