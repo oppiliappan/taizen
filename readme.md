@@ -1,6 +1,6 @@
 # Taizen
 
-![neet.png](https://0x0.st/sfvw.png)
+![scrot.png](https://0x0.st/sfvw.png)
 
 Browse Wikipedia pages from the command line.  
 
@@ -14,7 +14,7 @@ cargo run
 
 ## Usage
 
-Taizen uses a stack like model.
+Taizen uses a **stack** like model.
 Articles are opened on new layers, pop a layer to go back.  
 Hit `s` to search  
 Hit `q` to quit  

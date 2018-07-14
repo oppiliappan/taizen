@@ -7,7 +7,7 @@ pub fn palette_gen() -> theme::Palette {
     let mut palette: theme::Palette = theme::Palette::default();
 
     palette.set_color("background"         , Dark(Black));
-    palette.set_color("shadow"             , Dark(White));
+    palette.set_color("shadow"             , Light(Black));
     palette.set_color("view"               , Dark(Black));
     palette.set_color("primary"            , Dark(White));
     palette.set_color("secondary"          , Light(Black));
@@ -23,7 +23,7 @@ pub fn palette_gen() -> theme::Palette {
 pub fn theme_gen() -> theme::Theme {
     let mut wikitheme = theme::load_default();
 
-    wikitheme.shadow = false;
+    wikitheme.shadow  = false;
     wikitheme.borders = BorderStyle::Simple;
     wikitheme.palette = palette_gen();
 
