@@ -87,21 +87,23 @@ fn on_submit(s: &mut Cursive, name: &String) {
     };
 
     // get the act together
-    let mut article_content = TextView::new(heading);
-    article_content.append(String::from("\n\n"));
-    article_content.append(extract_formatter(extract));
+    let article_content = TextView::new(extract_formatter(extract));
 
     let links = SelectView::<String>::new()
         .with_all_str(link_vec)
-        .on_submit(on_submit);
+        .on_submit(on_submit)
+        .fixed_width(20);
 
     s.add_layer(
-        OnEventView::new(
-            LinearLayout::horizontal()
-            .child(article_content.fixed_width(72))
-            .child(DummyView)
-            .child(links)
+        Dialog::around(
+            OnEventView::new(
+                LinearLayout::horizontal()
+                .child(article_content.fixed_width(72))
+                .child(DummyView)
+                .child(links)
+                )
+            .on_event('t', |s| match s.pop_layer() { _ => () })
             )
-        .on_event('t', |s| match s.pop_layer() { _ => () })
+        .title(heading)
         );
 }
