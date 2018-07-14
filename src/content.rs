@@ -23,6 +23,7 @@ pub fn query_url_gen(title: &str) -> String {
     url.push_str(title);
     url.push_str("&");
     url.push_str("redirects=1&");
+    url.push_str("pllimit=40&");
     url.push_str("explaintext=1");
     url
 }
