@@ -8,7 +8,6 @@ use cursive::utils::markup::StyledString;
 use cursive::Cursive;
 use cursive::views::Dialog;
 use serde_json::Value;
-use reqwest::Response;
 use self::regex::Regex;
 
 pub fn query_url_gen(title: &str) -> String {
@@ -42,11 +41,7 @@ pub fn search_url_gen(search: &str) -> String {
     url
 }
 
-pub fn get_extract(mut res: Response) -> Result<String, reqwest::Error> {
-    let v: Value = match serde_json::from_str(&res.text()?) {
-        Ok(x) => x,
-        Err(x) => panic!("Failed to parse json\nReceived error {}", x),
-    };
+pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
     let pageid = &v["query"]["pageids"][0];
     let pageid_str = match pageid {
         Value::String(id) => id,
@@ -120,11 +115,7 @@ pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
     Ok(results)
 }
 
-pub fn get_links(mut res: Response) -> Result<Vec<String>, reqwest::Error> {
-    let v: Value = match serde_json::from_str(&res.text()?) {
-        Ok(x) => x,
-        Err(x) => panic!("Failed to parse json\nReceived error {}", x),
-    };
+pub fn get_links(v: &Value) -> Result<Vec<String>, reqwest::Error> {
     let pageid = &v["query"]["pageids"][0];
     let pageid_str = match pageid {
         Value::String(id) => id,
