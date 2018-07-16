@@ -2,6 +2,7 @@ extern crate reqwest;
 extern crate serde_json;
 extern crate cursive;
 extern crate regex;
+extern crate urlencoding;
 
 use cursive::theme::Effect;
 use cursive::utils::markup::StyledString;
@@ -19,7 +20,7 @@ pub fn query_url_gen(title: &str) -> String {
     url.push_str("prop=extracts%7Clinks&");
     url.push_str("indexpageids=1&");
     url.push_str("titles=");
-    url.push_str(title);
+    url.push_str(&urlencoding::encode(title));
     url.push_str("&");
     url.push_str("redirects=1&");
     url.push_str("pllimit=40&");
@@ -35,7 +36,7 @@ pub fn search_url_gen(search: &str) -> String {
     url.push_str("action=opensearch&");
     url.push_str("format=json&");
     url.push_str("search=");
-    url.push_str(search);
+    url.push_str(&urlencoding::encode(search));
     url.push_str("&");
     url.push_str("limit=20");
     url

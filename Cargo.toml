@@ -8,3 +8,4 @@ reqwest = { git = "https://github.com/seanmonstar/reqwest" }
 serde_json = { git = "https://github.com/serde-rs/json" }
 cursive = { git = "https://github.com/gyscos/Cursive" }
 regex = "1"
+urlencoding = "1.0.0"
