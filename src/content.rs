@@ -46,7 +46,7 @@ pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
     let pageid = &v["query"]["pageids"][0];
     let pageid_str = match pageid {
         Value::String(id) => id,
-        _ => panic!("wut"),
+        _ => "-1",
     };
 
     match &v["query"]["pages"][pageid_str]["extract"] {
@@ -57,7 +57,7 @@ pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
             Ok(format!("{}", extract))
         }
         // ignore non strings
-        _ => Ok(format!("This page has been deleted or moved"))
+        _ => Ok(format!("This page does not exist anymore"))
     }
 }
 
@@ -100,7 +100,7 @@ pub fn extract_formatter(extract: String) -> StyledString {
 pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
     let url = search_url_gen(search);
     let mut res = reqwest::get(&url[..])?;
-    let v: Value = serde_json::from_str(&res.text().unwrap())
+    let v: Value = serde_json::from_str(&res.text()?)
         .unwrap_or_else( |e| {
             panic!("Recieved error {:?}", e);
         } );
