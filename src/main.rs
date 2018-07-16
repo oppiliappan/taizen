@@ -10,6 +10,8 @@ use cursive::views::{
     DummyView
 };
 
+use serde_json::Value;
+
 pub mod content;
 use content::*;
 
@@ -22,6 +24,7 @@ fn main() {
 
     // set theme
     main.set_theme(theme_gen());
+
 
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
@@ -74,14 +77,17 @@ fn on_submit(s: &mut Cursive, name: &String) {
     let mut extract = String::new();
     let mut link_vec: Vec<String> = vec![];
 
-    // handle errors if any
-    let res = reqwest::get(&url).unwrap();
-    match get_extract(res) {
+    let mut res = reqwest::get(&url).unwrap();
+    let v: Value = match serde_json::from_str(&res.text().unwrap()) {
+        Ok(x) => x,
+        Err(x) => panic!("Failed to parse json\nReceived error {}", x),
+    };
+
+    match get_extract(&v) {
         Ok(x) => extract = x,
         Err(e) => pop_error(s, handler(e))
     };
-    let res = reqwest::get(&url).unwrap();
-    match get_links(res) {
+    match get_links(&v) {
         Ok(x) => link_vec = x,
         Err(e) => pop_error(s, handler(e))
     };
