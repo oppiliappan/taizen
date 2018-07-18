@@ -37,7 +37,7 @@ fn search(s: &mut Cursive){
     fn go(s: &mut Cursive, search: &str) {
         s.pop_layer();
         let mut result = vec![];
-        match get_search_results(search) {
+        match get_search_results(&search) {
             Ok(x) => result = x,
             Err(e) => pop_error(s,handler(e)),
         };
@@ -48,9 +48,9 @@ fn search(s: &mut Cursive){
                 on_submit(s, name);
             });
         s.add_layer(Dialog::around(choose_result)
-                    .title("Search Results")
-                    .button("Cancel", |s| match s.pop_layer() { _ => () })
-                    .fixed_size(( 45,10 )));
+            .title("Search Results")
+            .button("Cancel", |s| match s.pop_layer() { _ => () })
+            .fixed_size(( 45,10 )));
     }
 
     s.add_layer(Dialog::around(EditView::new()
