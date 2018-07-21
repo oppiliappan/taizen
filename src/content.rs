@@ -30,13 +30,13 @@ pub fn query_url_gen(title: &str) -> String {
 
 pub fn search_url_gen(search: &str) -> String {
     // search config
-    search.replace(" ", "%20");
+    let search = search.replace(" ", "%20");
     let mut url = String::from("https://en.wikipedia.org");
     url.push_str("/w/api.php?");
     url.push_str("action=opensearch&");
     url.push_str("format=json&");
     url.push_str("search=");
-    url.push_str(&urlencoding::encode(search));
+    url.push_str(&urlencoding::encode(&search));
     url.push_str("&");
     url.push_str("limit=20");
     url
@@ -52,7 +52,7 @@ pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
     match &v["query"]["pages"][pageid_str]["extract"] {
         Value::String(extract) => {
             // format to plain text
-            extract.replace("\\\\", "\\");
+            let extract = extract.replace("\\\\", "\\");
 
             Ok(format!("{}", extract))
         }
