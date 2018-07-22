@@ -93,7 +93,7 @@ fn on_submit(s: &mut Cursive, name: &String) {
     };
 
     // get the act together
-    let article_content = TextView::new(extract_formatter(extract));
+    let article_content = TextView::new(extract_formatter(extract)).scrollable();
 
     let links = SelectView::<String>::new()
         .with_all_str(link_vec)
