@@ -10,10 +10,11 @@ use cursive::Cursive;
 use cursive::views::Dialog;
 use serde_json::Value;
 use self::regex::Regex;
+use CONFIGURATION;
 
 pub fn query_url_gen(title: &str) -> String {
     // query config
-    let mut url = String::from("https://en.wikipedia.org");
+    let mut url = CONFIGURATION.wiki_url.clone();
     url.push_str("/w/api.php?");
     url.push_str("action=query&");
     url.push_str("format=json&");
@@ -31,7 +32,7 @@ pub fn query_url_gen(title: &str) -> String {
 pub fn search_url_gen(search: &str) -> String {
     // search config
     let search = search.replace(" ", "%20");
-    let mut url = String::from("https://en.wikipedia.org");
+    let mut url = CONFIGURATION.wiki_url.clone();
     url.push_str("/w/api.php?");
     url.push_str("action=opensearch&");
     url.push_str("format=json&");

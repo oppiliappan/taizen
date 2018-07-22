@@ -1,6 +1,9 @@
 extern crate reqwest;
 extern crate serde_json;
 extern crate cursive;
+extern crate clap;
+#[macro_use]
+extern crate lazy_static;
 
 use cursive::Cursive;
 use cursive::traits::*;
@@ -12,17 +15,29 @@ use cursive::views::{
 
 use serde_json::Value;
 
+use clap::{Arg, App};
+
 pub mod content;
 use content::*;
 
 pub mod theme;
 use theme::*;
 
+struct Configuration {
+    wiki_url: String
+}
+
+lazy_static! {
+    static ref CONFIGURATION: Configuration = parse_arguments();
+}
+
 fn main() {
+    parse_arguments();
+    
     // Initial setup
     let mut main = Cursive::default();
 
-    // set theme
+    // Set theme
     main.set_theme(theme_gen());
 
 
@@ -32,7 +47,35 @@ fn main() {
     main.run();
 }
 
-fn search(s: &mut Cursive){
+fn parse_arguments() -> Configuration {
+    let matches = App::new("Taizen")
+        .version("0.1.0")
+        .author("NerdyPepper")
+        .about("TUI MediaWiki browser")
+        .arg(Arg::with_name("URL")
+             .help("The URL of the wiki to be viewed")
+             .index(1))
+        .arg(Arg::with_name("lang")
+             .short("l")
+             .long("lang")
+             .value_name("CODE")
+             .help("Choose the language for Wikipedia")
+             .takes_value(true))
+        .get_matches();
+
+    if matches.is_present("HELP") {
+        std::process::exit(0);
+    }
+                               
+    let lang = matches.value_of("lang").unwrap_or("en").to_string();
+    let wiki_url = matches.value_of("URL").unwrap_or(&format!("https://{}.wikipedia.org", lang)).to_string();
+    
+    Configuration {
+        wiki_url
+    }
+}
+
+fn search(s: &mut Cursive) {
 
     fn go(s: &mut Cursive, search: &str) {
         s.pop_layer();
@@ -70,9 +113,9 @@ fn search(s: &mut Cursive){
                 .fixed_size(( 35, 5 )));
 }
 
-fn on_submit(s: &mut Cursive, name: &String) {
+fn on_submit(s: &mut Cursive, name: &str) {
     // get article data
-    let heading: String = name.clone();
+    let heading: String = name.to_string();
     let url = query_url_gen(&name.replace(" ", "_"));
     let mut extract = String::new();
     let mut link_vec: Vec<String> = vec![];
