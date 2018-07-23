@@ -5,6 +5,8 @@
 Browse Wikipedia pages from the command line.  
 
 ## Installation
+This project uses [Cursive crate](https://github.com/gyscos/Cursive), so before installing `Taizen`
+make sure you have installed necessary Cursive [dependencies](https://github.com/gyscos/Cursive/wiki/Install-ncurses).
 
 ```shell
 git clone https://github.com/nerdypepper/taizen
