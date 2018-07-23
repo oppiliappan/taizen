@@ -1,6 +1,6 @@
 # Taizen
 
-![scrot.png](https://0x0.st/sOet.png)
+![scrot.png](https://0x0.st/sVXt.png)
 
 Browse Wikipedia pages from the command line.  
 

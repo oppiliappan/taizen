@@ -66,10 +66,10 @@ fn parse_arguments() -> Configuration {
     if matches.is_present("HELP") {
         std::process::exit(0);
     }
-                               
+
     let lang = matches.value_of("lang").unwrap_or("en").to_string();
     let wiki_url = matches.value_of("URL").unwrap_or(&format!("https://{}.wikipedia.org", lang)).to_string();
-    
+
     Configuration {
         wiki_url
     }

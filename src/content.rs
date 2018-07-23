@@ -31,7 +31,6 @@ pub fn query_url_gen(title: &str) -> String {
 
 pub fn search_url_gen(search: &str) -> String {
     // search config
-    let search = search.replace(" ", "%20");
     let mut url = CONFIGURATION.wiki_url.clone();
     url.push_str("/w/api.php?");
     url.push_str("action=opensearch&");
