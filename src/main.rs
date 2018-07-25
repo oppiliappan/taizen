@@ -89,7 +89,8 @@ fn search(s: &mut Cursive) {
             .on_submit(|s, name|{
                 s.pop_layer();
                 on_submit(s, name);
-            });
+            })
+            .scrollable();
         s.add_layer(Dialog::around(choose_result)
             .title("Search Results")
             .button("Cancel", |s| match s.pop_layer() { _ => () })
@@ -141,6 +142,7 @@ fn on_submit(s: &mut Cursive, name: &str) {
     let links = SelectView::<String>::new()
         .with_all_str(link_vec)
         .on_submit(on_submit)
+        .scrollable()
         .fixed_width(20);
 
     s.add_layer(
