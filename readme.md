@@ -22,7 +22,7 @@ Hit `t` to pop a layer from the article stack
 
 You can now view wikipedia pages in different languages, by passing the
 language code as a commandline arg.  
-[List of language codes](https://en.wikipedia.org/wiki/List_of_Wikipedias#Wikipedia_edition_codes)
+[List of language codes](https://en.wikipedia.org/wiki/List_of_Wikipedias#Detailed_list)
 
 ```
 taizen --lang=sv
