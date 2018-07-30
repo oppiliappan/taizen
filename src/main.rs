@@ -45,10 +45,10 @@ fn main() {
 }
 
 fn parse_arguments() -> Configuration {
-    let matches = App::new("Taizen")
-        .version("0.1.0")
-        .author("NerdyPepper")
-        .about("TUI MediaWiki browser")
+    let matches = App::new(env!("CARGO_PKG_NAME"))
+        .version(env!("CARGO_PKG_VERSION"))
+        .author(env!("CARGO_PKG_AUTHORS"))
+        .about(env!("CARGO_PKG_DESCRIPTION"))
         .arg(
             Arg::with_name("URL")
                 .help("The URL of the wiki to be viewed")
