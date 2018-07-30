@@ -1,15 +1,15 @@
-extern crate reqwest;
-extern crate serde_json;
 extern crate cursive;
 extern crate regex;
+extern crate reqwest;
+extern crate serde_json;
 extern crate urlencoding;
 
+use self::regex::Regex;
 use cursive::theme::Effect;
 use cursive::utils::markup::StyledString;
-use cursive::Cursive;
 use cursive::views::Dialog;
+use cursive::Cursive;
 use serde_json::Value;
-use self::regex::Regex;
 use CONFIGURATION;
 
 pub fn query_url_gen(title: &str) -> String {
@@ -57,36 +57,33 @@ pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
             Ok(format!("{}", extract))
         }
         // ignore non strings
-        _ => Ok(format!("This page does not exist anymore"))
+        _ => Ok(format!("This page does not exist anymore")),
     }
 }
 
 pub fn extract_formatter(extract: String) -> StyledString {
     let mut formatted = StyledString::new();
 
-    let heading= Regex::new(r"^== (?P<d>.*) ==$").unwrap();
-    let subheading= Regex::new(r"^=== (?P<d>.*) ===$").unwrap();
-    let subsubheading= Regex::new(r"^==== (?P<d>.*) ====$").unwrap();
+    let heading = Regex::new(r"^== (?P<d>.*) ==$").unwrap();
+    let subheading = Regex::new(r"^=== (?P<d>.*) ===$").unwrap();
+    let subsubheading = Regex::new(r"^==== (?P<d>.*) ====$").unwrap();
 
     for line in extract.lines() {
         if heading.is_match(line) {
-            formatted.append(
-                StyledString::styled(
-                    heading.replace(line, "$d"), Effect::Bold
-                    )
-                );
+            formatted.append(StyledString::styled(
+                heading.replace(line, "$d"),
+                Effect::Bold,
+            ));
         } else if subheading.is_match(line) {
-            formatted.append(
-                StyledString::styled(
-                    subheading.replace(line, "$d"), Effect::Italic
-                    )
-                );
+            formatted.append(StyledString::styled(
+                subheading.replace(line, "$d"),
+                Effect::Italic,
+            ));
         } else if subsubheading.is_match(line) {
-            formatted.append(
-                StyledString::styled(
-                    subsubheading.replace(line, "$d"), Effect::Underline
-                    )
-                );
+            formatted.append(StyledString::styled(
+                subsubheading.replace(line, "$d"),
+                Effect::Underline,
+            ));
         } else {
             formatted.append(StyledString::plain(line));
         }
@@ -100,10 +97,9 @@ pub fn extract_formatter(extract: String) -> StyledString {
 pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
     let url = search_url_gen(search);
     let mut res = reqwest::get(&url[..])?;
-    let v: Value = serde_json::from_str(&res.text()?)
-        .unwrap_or_else( |e| {
-            panic!("Recieved error {:?}", e);
-        } );
+    let v: Value = serde_json::from_str(&res.text()?).unwrap_or_else(|e| {
+        panic!("Recieved error {:?}", e);
+    });
 
     let mut results: Vec<String> = vec![];
     for item in v[1].as_array().unwrap() {
@@ -129,19 +125,18 @@ pub fn get_links(v: &Value) -> Result<Vec<String>, reqwest::Error> {
             for item in arr {
                 match item["title"] {
                     Value::String(ref title) => links.push(title.to_string()),
-                    _ => links.push(String::from("lol"))
+                    _ => links.push(String::from("lol")),
                 }
             }
-        },
-        _ => links.push(String::from("lol"))
+        }
+        _ => links.push(String::from("lol")),
     };
 
     Ok(links)
 }
 
 pub fn pop_error(s: &mut Cursive, msg: String) {
-    s.add_layer(Dialog::text(format!("{}", msg))
-                .button("Ok", |s| s.quit()));
+    s.add_layer(Dialog::text(format!("{}", msg)).button("Ok", |s| s.quit()));
 }
 
 pub fn handler(e: reqwest::Error) -> String {

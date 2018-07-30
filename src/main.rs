@@ -1,21 +1,19 @@
+extern crate clap;
+extern crate cursive;
 extern crate reqwest;
 extern crate serde_json;
-extern crate cursive;
-extern crate clap;
 #[macro_use]
 extern crate lazy_static;
 
-use cursive::Cursive;
 use cursive::traits::*;
-use cursive::views::{ 
-    TextView, Dialog, EditView,
-    SelectView, OnEventView, LinearLayout,
-    DummyView
+use cursive::views::{
+    Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView,
 };
+use cursive::Cursive;
 
 use serde_json::Value;
 
-use clap::{Arg, App};
+use clap::{App, Arg};
 
 pub mod content;
 use content::*;
@@ -24,7 +22,7 @@ pub mod theme;
 use theme::*;
 
 struct Configuration {
-    wiki_url: String
+    wiki_url: String,
 }
 
 lazy_static! {
@@ -33,13 +31,12 @@ lazy_static! {
 
 fn main() {
     parse_arguments();
-    
+
     // Initial setup
     let mut main = Cursive::default();
 
     // Set theme
     main.set_theme(theme_gen());
-
 
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
@@ -48,19 +45,23 @@ fn main() {
 }
 
 fn parse_arguments() -> Configuration {
-    let matches = App::new("Taizen")
-        .version("0.1.0")
-        .author("NerdyPepper")
-        .about("TUI MediaWiki browser")
-        .arg(Arg::with_name("URL")
-             .help("The URL of the wiki to be viewed")
-             .index(1))
-        .arg(Arg::with_name("lang")
-             .short("l")
-             .long("lang")
-             .value_name("CODE")
-             .help("Choose the language for Wikipedia")
-             .takes_value(true))
+    let matches = App::new(env!("CARGO_PKG_NAME"))
+        .version(env!("CARGO_PKG_VERSION"))
+        .author(env!("CARGO_PKG_AUTHORS"))
+        .about(env!("CARGO_PKG_DESCRIPTION"))
+        .arg(
+            Arg::with_name("URL")
+                .help("The URL of the wiki to be viewed")
+                .index(1),
+        )
+        .arg(
+            Arg::with_name("lang")
+                .short("l")
+                .long("lang")
+                .value_name("CODE")
+                .help("Choose the language for Wikipedia")
+                .takes_value(true),
+        )
         .get_matches();
 
     if matches.is_present("HELP") {
@@ -68,50 +69,52 @@ fn parse_arguments() -> Configuration {
     }
 
     let lang = matches.value_of("lang").unwrap_or("en").to_string();
-    let wiki_url = matches.value_of("URL").unwrap_or(&format!("https://{}.wikipedia.org", lang)).to_string();
+    let wiki_url = matches
+        .value_of("URL")
+        .unwrap_or(&format!("https://{}.wikipedia.org", lang))
+        .to_string();
 
-    Configuration {
-        wiki_url
-    }
+    Configuration { wiki_url }
 }
 
 fn search(s: &mut Cursive) {
-
     fn go(s: &mut Cursive, search: &str) {
         s.pop_layer();
         let mut result = vec![];
         match get_search_results(&search) {
             Ok(x) => result = x,
-            Err(e) => pop_error(s,handler(e)),
+            Err(e) => pop_error(s, handler(e)),
         };
         let choose_result = SelectView::<String>::new()
             .with_all_str(result)
-            .on_submit(|s, name|{
+            .on_submit(|s, name| {
                 s.pop_layer();
                 on_submit(s, name);
             })
             .scrollable();
-        s.add_layer(Dialog::around(choose_result)
-            .title("Search Results")
-            .button("Cancel", |s| match s.pop_layer() { _ => () })
-            .fixed_size(( 45,10 )));
+        s.add_layer(
+            Dialog::around(choose_result)
+                .title("Search Results")
+                .button("Cancel", |s| match s.pop_layer() {
+                    _ => (),
+                })
+                .fixed_size((45, 10)),
+        );
     }
 
-    s.add_layer(Dialog::around(EditView::new()
-                               .on_submit(go)
-                               .with_id("search")
-                               )
-                .title("Search for a page")
-                .button("Go", |s| {
-                    let search_txt = s.call_on_id( "search", |v: &mut EditView| {
-                        v.get_content()
-                    }).unwrap();
-                    go(s, &search_txt);
-                })
-                .button("Cancel", |s| match s.pop_layer(){
-                    _ => ()
-                })
-                .fixed_size(( 35, 5 )));
+    s.add_layer(
+        Dialog::around(EditView::new().on_submit(go).with_id("search"))
+            .title("Search for a page")
+            .button("Go", |s| {
+                let search_txt = s.call_on_id("search", |v: &mut EditView| v.get_content())
+                    .unwrap();
+                go(s, &search_txt);
+            })
+            .button("Cancel", |s| match s.pop_layer() {
+                _ => (),
+            })
+            .fixed_size((35, 5)),
+    );
 }
 
 fn on_submit(s: &mut Cursive, name: &str) {
@@ -129,11 +132,11 @@ fn on_submit(s: &mut Cursive, name: &str) {
 
     match get_extract(&v) {
         Ok(x) => extract = x,
-        Err(e) => pop_error(s, handler(e))
+        Err(e) => pop_error(s, handler(e)),
     };
     match get_links(&v) {
         Ok(x) => link_vec = x,
-        Err(e) => pop_error(s, handler(e))
+        Err(e) => pop_error(s, handler(e)),
     };
 
     // get the act together
@@ -149,12 +152,12 @@ fn on_submit(s: &mut Cursive, name: &str) {
         Dialog::around(
             OnEventView::new(
                 LinearLayout::horizontal()
-                .child(article_content.fixed_width(72))
-                .child(DummyView)
-                .child(links)
-                )
-            .on_event('t', |s| match s.pop_layer() { _ => () })
-            )
-        .title(heading)
-        );
+                    .child(article_content.fixed_width(72))
+                    .child(DummyView)
+                    .child(links),
+            ).on_event('t', |s| match s.pop_layer() {
+                _ => (),
+            }),
+        ).title(heading),
+    );
 }
