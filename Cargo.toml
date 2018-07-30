@@ -2,6 +2,7 @@
 name = "taizen"
 version = "0.1.0"
 authors = ["NerdyPepper <akshayoppiliappan@gmail.com>"]
+description = "TUI MediaWiki browser"
 
 [dependencies]
 reqwest = { git = "https://github.com/seanmonstar/reqwest" }
