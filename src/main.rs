@@ -6,9 +6,7 @@ extern crate serde_json;
 extern crate lazy_static;
 
 use cursive::traits::*;
-use cursive::views::{
-    Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView,
-};
+use cursive::views::{Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView};
 use cursive::Cursive;
 
 use serde_json::Value;
@@ -83,7 +81,7 @@ fn search(s: &mut Cursive) {
         let mut result = vec![];
         match get_search_results(&search) {
             Ok(x) => result = x,
-            Err(e) => pop_error(s, handler(e)),
+            Err(e) => pop_error(s, &handler(&e)),
         };
         let choose_result = SelectView::<String>::new()
             .with_all_str(result)
@@ -132,15 +130,15 @@ fn on_submit(s: &mut Cursive, name: &str) {
 
     match get_extract(&v) {
         Ok(x) => extract = x,
-        Err(e) => pop_error(s, handler(e)),
+        Err(e) => pop_error(s, &handler(&e)),
     };
     match get_links(&v) {
         Ok(x) => link_vec = x,
-        Err(e) => pop_error(s, handler(e)),
+        Err(e) => pop_error(s, &handler(&e)),
     };
 
     // get the act together
-    let article_content = TextView::new(extract_formatter(extract)).scrollable();
+    let article_content = TextView::new(extract_formatter(&extract)).scrollable();
 
     let links = SelectView::<String>::new()
         .with_all_str(link_vec)

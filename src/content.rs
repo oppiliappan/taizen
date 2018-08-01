@@ -54,14 +54,14 @@ pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
             // format to plain text
             let extract = extract.replace("\\\\", "\\");
 
-            Ok(format!("{}", extract))
+            Ok(extract.to_string())
         }
         // ignore non strings
-        _ => Ok(format!("This page does not exist anymore")),
+        _ => Ok("This page does not exist anymore".to_string()),
     }
 }
 
-pub fn extract_formatter(extract: String) -> StyledString {
+pub fn extract_formatter(extract: &str) -> StyledString {
     let mut formatted = StyledString::new();
 
     let heading = Regex::new(r"^== (?P<d>.*) ==$").unwrap();
@@ -103,10 +103,8 @@ pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
 
     let mut results: Vec<String> = vec![];
     for item in v[1].as_array().unwrap() {
-        match item {
-            Value::String(x) => results.push(x.to_string()),
-            // ignore non strings
-            _ => (),
+        if let Value::String(x) = item {
+            results.push(x.to_string())
         }
     }
     Ok(results)
@@ -135,21 +133,21 @@ pub fn get_links(v: &Value) -> Result<Vec<String>, reqwest::Error> {
     Ok(links)
 }
 
-pub fn pop_error(s: &mut Cursive, msg: String) {
-    s.add_layer(Dialog::text(format!("{}", msg)).button("Ok", |s| s.quit()));
+pub fn pop_error(s: &mut Cursive, msg: &str) {
+    s.add_layer(Dialog::text(msg.to_string()).button("Ok", |s| s.quit()));
 }
 
-pub fn handler(e: reqwest::Error) -> String {
+pub fn handler(e: &reqwest::Error) -> String {
     let mut msg: String = String::new();
     if e.is_http() {
         match e.url() {
-            None => msg.push_str(&format!("No URL given")),
+            None => msg.push_str(&"No URL given"),
             Some(url) => msg.push_str(&format!("Problem making request to: {}", url)),
         }
     }
 
     if e.is_redirect() {
-        msg.push_str(&format!("server redirecting too many times or making loop"));
+        msg.push_str(&"server redirecting too many times or making loop");
     }
 
     msg
