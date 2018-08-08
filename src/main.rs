@@ -117,8 +117,7 @@ fn search(s: &mut Cursive) {
 
 fn on_submit(s: &mut Cursive, name: &str) {
     // get article data
-    let heading: String = name.to_string();
-    let url = query_url_gen(&name.replace(" ", "_"));
+    let url = query_url_gen(name);
     let mut extract = String::new();
     let mut link_vec: Vec<String> = vec![];
 
@@ -153,6 +152,6 @@ fn on_submit(s: &mut Cursive, name: &str) {
             ).on_event('t', |s| match s.pop_layer() {
                 _ => (),
             }),
-        ).title(heading),
+        ).title(name),
     );
 }

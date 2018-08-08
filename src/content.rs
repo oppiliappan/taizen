@@ -21,7 +21,7 @@ pub fn query_url_gen(title: &str) -> String {
     url.push_str("prop=extracts%7Clinks&");
     url.push_str("indexpageids=1&");
     url.push_str("titles=");
-    url.push_str(&urlencoding::encode(title));
+    url.push_str(&urlencoding::encode(&title.replace(" ", "_")));
     url.push_str("&");
     url.push_str("redirects=1&");
     url.push_str("pllimit=100&");
