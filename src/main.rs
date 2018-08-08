@@ -6,7 +6,9 @@ extern crate serde_json;
 extern crate lazy_static;
 
 use cursive::traits::*;
-use cursive::views::{Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView};
+use cursive::views::{
+    Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView,
+};
 use cursive::Cursive;
 
 use serde_json::Value;
@@ -28,8 +30,6 @@ lazy_static! {
 }
 
 fn main() {
-    parse_arguments();
-
     // Initial setup
     let mut main = Cursive::default();
 
@@ -38,6 +38,12 @@ fn main() {
 
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
+
+    main.add_layer(TextView::new(
+        "Hit s to search
+Hit q to quit
+Hit t to pop layer",
+    ));
 
     main.run();
 }
@@ -66,7 +72,10 @@ fn parse_arguments() -> Configuration {
         std::process::exit(0);
     }
 
-    let lang = matches.value_of("lang").unwrap_or("en").to_string();
+    let lang = matches
+        .value_of("lang")
+        .or(option_env!("LANG").map(|s| s.split_at(2).0))
+        .unwrap_or("en");
     let wiki_url = matches
         .value_of("URL")
         .unwrap_or(&format!("https://{}.wikipedia.org", lang))
@@ -104,7 +113,8 @@ fn search(s: &mut Cursive) {
         Dialog::around(EditView::new().on_submit(go).with_id("search"))
             .title("Search for a page")
             .button("Go", |s| {
-                let search_txt = s.call_on_id("search", |v: &mut EditView| v.get_content())
+                let search_txt = s
+                    .call_on_id("search", |v: &mut EditView| v.get_content())
                     .unwrap();
                 go(s, &search_txt);
             })
@@ -117,16 +127,12 @@ fn search(s: &mut Cursive) {
 
 fn on_submit(s: &mut Cursive, name: &str) {
     // get article data
-    let heading: String = name.to_string();
-    let url = query_url_gen(&name.replace(" ", "_"));
+    let url = query_url_gen(name);
     let mut extract = String::new();
     let mut link_vec: Vec<String> = vec![];
 
-    let mut res = reqwest::get(&url).unwrap();
-    let v: Value = match serde_json::from_str(&res.text().unwrap()) {
-        Ok(x) => x,
-        Err(x) => panic!("Failed to parse json\nReceived error {}", x),
-    };
+    let mut res = reqwest::get(url).unwrap();
+    let v: Value = res.json().expect("Failed to parse json");
 
     match get_extract(&v) {
         Ok(x) => extract = x,
@@ -156,6 +162,6 @@ fn on_submit(s: &mut Cursive, name: &str) {
             ).on_event('t', |s| match s.pop_layer() {
                 _ => (),
             }),
-        ).title(heading),
+        ).title(name),
     );
 }

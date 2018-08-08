@@ -9,37 +9,36 @@ use cursive::theme::Effect;
 use cursive::utils::markup::StyledString;
 use cursive::views::Dialog;
 use cursive::Cursive;
+use reqwest::Url;
 use serde_json::Value;
 use CONFIGURATION;
 
-pub fn query_url_gen(title: &str) -> String {
-    // query config
-    let mut url = CONFIGURATION.wiki_url.clone();
-    url.push_str("/w/api.php?");
-    url.push_str("action=query&");
-    url.push_str("format=json&");
-    url.push_str("prop=extracts%7Clinks&");
-    url.push_str("indexpageids=1&");
-    url.push_str("titles=");
-    url.push_str(&urlencoding::encode(title));
-    url.push_str("&");
-    url.push_str("redirects=1&");
-    url.push_str("pllimit=100&");
-    url.push_str("explaintext=1");
-    url
+pub fn query_url_gen(title: &str) -> Url {
+    Url::parse_with_params(
+        &(CONFIGURATION.wiki_url.clone() + "/w/api.php"),
+        &[
+            ("action", "query"),
+            ("format", "json"),
+            ("prop", "extracts|links"),
+            ("indexpageids", "1"),
+            ("titles", &urlencoding::encode(&title.replace(" ", "_"))),
+            ("redirects", "1"),
+            ("pllimit", "100"),
+            ("explaintext", "1"),
+        ],
+    ).unwrap()
 }
 
-pub fn search_url_gen(search: &str) -> String {
-    // search config
-    let mut url = CONFIGURATION.wiki_url.clone();
-    url.push_str("/w/api.php?");
-    url.push_str("action=opensearch&");
-    url.push_str("format=json&");
-    url.push_str("search=");
-    url.push_str(&urlencoding::encode(&search));
-    url.push_str("&");
-    url.push_str("limit=20");
-    url
+pub fn search_url_gen(search: &str) -> Url {
+    Url::parse_with_params(
+        &(CONFIGURATION.wiki_url.clone() + "/w/api.php"),
+        &[
+            ("action", "opensearch"),
+            ("format", "json"),
+            ("search", &urlencoding::encode(search)),
+            ("limit", "20"),
+        ],
+    ).unwrap()
 }
 
 pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
