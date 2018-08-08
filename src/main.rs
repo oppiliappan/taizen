@@ -72,7 +72,10 @@ fn parse_arguments() -> Configuration {
         std::process::exit(0);
     }
 
-    let lang = matches.value_of("lang").unwrap_or("en").to_string();
+    let lang = matches
+        .value_of("lang")
+        .or(option_env!("LANG").map(|s| s.split_at(2).0))
+        .unwrap_or("en");
     let wiki_url = matches
         .value_of("URL")
         .unwrap_or(&format!("https://{}.wikipedia.org", lang))
