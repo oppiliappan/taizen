@@ -39,6 +39,12 @@ fn main() {
     main.add_global_callback('q', |s| s.quit());
     main.add_global_callback('s', |s| search(s));
 
+    main.add_layer(TextView::new(
+        "Hit s to search
+Hit q to quit
+Hit t to pop layer",
+    ));
+
     main.run();
 }
 
