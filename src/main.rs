@@ -124,7 +124,7 @@ fn on_submit(s: &mut Cursive, name: &str) {
     let mut extract = String::new();
     let mut link_vec: Vec<String> = vec![];
 
-    let mut res = reqwest::get(&url).unwrap();
+    let mut res = reqwest::get(url).unwrap();
     let v: Value = res.json().expect("Failed to parse json");
 
     match get_extract(&v) {
