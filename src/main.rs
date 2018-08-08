@@ -6,7 +6,9 @@ extern crate serde_json;
 extern crate lazy_static;
 
 use cursive::traits::*;
-use cursive::views::{Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView};
+use cursive::views::{
+    Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView,
+};
 use cursive::Cursive;
 
 use serde_json::Value;
@@ -104,7 +106,8 @@ fn search(s: &mut Cursive) {
         Dialog::around(EditView::new().on_submit(go).with_id("search"))
             .title("Search for a page")
             .button("Go", |s| {
-                let search_txt = s.call_on_id("search", |v: &mut EditView| v.get_content())
+                let search_txt = s
+                    .call_on_id("search", |v: &mut EditView| v.get_content())
                     .unwrap();
                 go(s, &search_txt);
             })
