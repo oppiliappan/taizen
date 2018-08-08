@@ -30,8 +30,6 @@ lazy_static! {
 }
 
 fn main() {
-    parse_arguments();
-
     // Initial setup
     let mut main = Cursive::default();
 
