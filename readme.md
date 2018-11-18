@@ -6,6 +6,15 @@
 Browse mediawiki pages from the command line.
 
 ## Installation
+
+### From crates.io
+
+```shell
+cargo install taizen
+
+```
+
+### Building from source
 This project uses [Cursive crate](https://github.com/gyscos/Cursive), so before installing `Taizen`
 make sure you have installed necessary Cursive [dependencies](https://github.com/gyscos/Cursive/wiki/Install-ncurses).
 
@@ -37,4 +46,4 @@ taizen --lang=sv                 # view the swedish wikis
 
 ## Screenshot
 
-![scrot.png](https://0x0.st/sVXt.png)
+![scrot.png](https://files.nerdypepper.me/7G.png)
