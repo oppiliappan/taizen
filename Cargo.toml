@@ -4,6 +4,10 @@ license = "MIT"
 version = "0.1.0"
 authors = ["NerdyPepper <akshayoppiliappan@gmail.com>"]
 description = "TUI MediaWiki browser"
+repository = "https://github.com/NerdyPepper/taizen"
+readme = "./readme.md"
+keywords = ["wikipedia", "tui", "app", "curses"]
+categories = ["command-line-utilities"]
 
 [dependencies]
 reqwest = "0.9.5"
