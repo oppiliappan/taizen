@@ -6,9 +6,9 @@ authors = ["NerdyPepper <akshayoppiliappan@gmail.com>"]
 description = "TUI MediaWiki browser"
 
 [dependencies]
-reqwest = { git = "https://github.com/seanmonstar/reqwest" }
-serde_json = { git = "https://github.com/serde-rs/json" }
-cursive = { git = "https://github.com/gyscos/Cursive" }
+reqwest = "0.9.5"
+serde_json = "1.0.33"
+cursive = "0.9.2"
 regex = "1"
 urlencoding = "1.0.0"
 clap = "2.32.0"
