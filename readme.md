@@ -1,5 +1,8 @@
 ![banner.png](https://0x0.st/sVMH.png)
 
+[![](http://meritbadge.herokuapp.com/taizen)](https://crates.io/crates/taizen)
+[![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+
 Browse mediawiki pages from the command line.
 
 ## Installation
