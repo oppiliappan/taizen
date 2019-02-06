@@ -2,7 +2,7 @@ extern crate cursive;
 extern crate regex;
 extern crate reqwest;
 extern crate serde_json;
-extern crate urlencoding;
+extern crate url;
 
 use self::regex::Regex;
 use cursive::theme::Effect;
@@ -13,32 +13,48 @@ use reqwest::Url;
 use serde_json::Value;
 use CONFIGURATION;
 
+use content::url::percent_encoding::{ utf8_percent_encode, DEFAULT_ENCODE_SET };
+
+use std::fs::File;
+use std::io::prelude::*;
+
 pub fn query_url_gen(title: &str) -> Url {
-    Url::parse_with_params(
+    let url = Url::parse_with_params(
         &(CONFIGURATION.wiki_url.clone() + "/w/api.php"),
         &[
             ("action", "query"),
             ("format", "json"),
             ("prop", "extracts|links"),
             ("indexpageids", "1"),
-            ("titles", &urlencoding::encode(&title.replace(" ", "_"))),
+            ("titles", &utf8_percent_encode(&title.replace(" ", "_"), DEFAULT_ENCODE_SET).to_string()[..]),
             ("redirects", "1"),
             ("pllimit", "100"),
             ("explaintext", "1"),
         ],
-    ).unwrap()
+    ).unwrap();
+
+    let mut f = File::open("~/.taizen_logs").unwrap();
+    f.write_all(url.as_str().as_bytes()).unwrap();
+
+    return url;
 }
 
 pub fn search_url_gen(search: &str) -> Url {
-    Url::parse_with_params(
+    let url = Url::parse_with_params(
         &(CONFIGURATION.wiki_url.clone() + "/w/api.php"),
         &[
             ("action", "opensearch"),
             ("format", "json"),
-            ("search", &urlencoding::encode(search)),
+            ("search", &utf8_percent_encode(&search, DEFAULT_ENCODE_SET).to_string()[..]),
             ("limit", "20"),
         ],
-    ).unwrap()
+    ).unwrap();
+
+    let mut f = File::create("taizen_logs.txt").unwrap();
+    f.write_all(url.as_str().as_bytes()).expect("failed to write unicode");
+    f.write_all(search.as_bytes()).unwrap();
+
+    return url;
 }
 
 pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
@@ -104,8 +120,14 @@ pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
     for item in v[1].as_array().unwrap() {
         if let Value::String(x) = item {
             results.push(x.to_string())
-        }
+        };
     }
+
+    // let mut f = File::open("taizen_logs.txt").unwrap();
+    // for result in &results {
+    //     f.write_all(result.as_bytes()).unwrap();
+    // }
+
     Ok(results)
 }
 
