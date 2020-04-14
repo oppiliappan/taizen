@@ -13,10 +13,12 @@ use reqwest::Url;
 use serde_json::Value;
 use CONFIGURATION;
 
-use content::url::percent_encoding::{ utf8_percent_encode, DEFAULT_ENCODE_SET };
+use content::url::percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
 
-use std::fs::File;
+use std::fs::OpenOptions;
 use std::io::prelude::*;
+
+extern crate dirs;
 
 pub fn query_url_gen(title: &str) -> Url {
     let url = Url::parse_with_params(
@@ -26,15 +28,24 @@ pub fn query_url_gen(title: &str) -> Url {
             ("format", "json"),
             ("prop", "extracts|links"),
             ("indexpageids", "1"),
-            ("titles", &utf8_percent_encode(&title.replace(" ", "_"), DEFAULT_ENCODE_SET).to_string()[..]),
+            (
+                "titles",
+                &utf8_percent_encode(&title.replace(" ", "_"), DEFAULT_ENCODE_SET).to_string()[..],
+            ),
             ("redirects", "1"),
             ("pllimit", "100"),
             ("explaintext", "1"),
         ],
-    ).unwrap();
+    )
+    .unwrap();
 
-    let mut f = File::open("~/.taizen_logs").unwrap();
-    f.write_all(url.as_str().as_bytes()).unwrap();
+    let mut f = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .append(true)
+        .open(dirs::home_dir().unwrap().join(".taizen_logs.txt"))
+        .unwrap();
+    writeln!(f, "{}", title).ok();
 
     return url;
 }
@@ -45,14 +56,22 @@ pub fn search_url_gen(search: &str) -> Url {
         &[
             ("action", "opensearch"),
             ("format", "json"),
-            ("search", &utf8_percent_encode(&search, DEFAULT_ENCODE_SET).to_string()[..]),
+            (
+                "search",
+                &utf8_percent_encode(&search, DEFAULT_ENCODE_SET).to_string()[..],
+            ),
             ("limit", "20"),
         ],
-    ).unwrap();
+    )
+    .unwrap();
 
-    let mut f = File::create("taizen_logs.txt").unwrap();
-    f.write_all(url.as_str().as_bytes()).expect("failed to write unicode");
-    f.write_all(search.as_bytes()).unwrap();
+    let mut f = OpenOptions::new()
+        .create(true)
+        .write(true)
+        .append(true)
+        .open(dirs::home_dir().unwrap().join(".taizen_logs.txt"))
+        .unwrap();
+    writeln!(f, "{}", search).ok();
 
     return url;
 }
