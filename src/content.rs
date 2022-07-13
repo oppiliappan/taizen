@@ -30,7 +30,7 @@ pub fn query_url_gen(title: &str) -> Url {
             ("indexpageids", "1"),
             (
                 "titles",
-                &utf8_percent_encode(&title.replace(" ", "_"), DEFAULT_ENCODE_SET).to_string()[..],
+                &utf8_percent_encode(&title.replace(' ', "_"), DEFAULT_ENCODE_SET).to_string()[..],
             ),
             ("redirects", "1"),
             ("pllimit", "100"),
@@ -47,7 +47,7 @@ pub fn query_url_gen(title: &str) -> Url {
         .unwrap();
     writeln!(f, "{}", title).ok();
 
-    return url;
+    url
 }
 
 pub fn search_url_gen(search: &str) -> Url {
@@ -58,7 +58,7 @@ pub fn search_url_gen(search: &str) -> Url {
             ("format", "json"),
             (
                 "search",
-                &utf8_percent_encode(&search, DEFAULT_ENCODE_SET).to_string()[..],
+                &utf8_percent_encode(search, DEFAULT_ENCODE_SET).to_string()[..],
             ),
             ("limit", "20"),
         ],
@@ -73,7 +73,7 @@ pub fn search_url_gen(search: &str) -> Url {
         .unwrap();
     writeln!(f, "{}", search).ok();
 
-    return url;
+    url
 }
 
 pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
@@ -88,7 +88,7 @@ pub fn get_extract(v: &Value) -> Result<String, reqwest::Error> {
             // format to plain text
             let extract = extract.replace("\\\\", "\\");
 
-            Ok(extract.to_string())
+            Ok(extract)
         }
         // ignore non strings
         _ => Ok("This page does not exist anymore".to_string()),
@@ -181,13 +181,13 @@ pub fn handler(e: &reqwest::Error) -> String {
     let mut msg: String = String::new();
     if e.is_http() {
         match e.url() {
-            None => msg.push_str(&"No URL given"),
+            None => msg.push_str("No URL given"),
             Some(url) => msg.push_str(&format!("Problem making request to: {}", url)),
         }
     }
 
     if e.is_redirect() {
-        msg.push_str(&"server redirecting too many times or making loop");
+        msg.push_str("server redirecting too many times or making loop");
     }
 
     msg
