@@ -37,7 +37,7 @@ fn main() {
     main.set_theme(theme_gen());
 
     main.add_global_callback('q', |s| s.quit());
-    main.add_global_callback('s', |s| search(s));
+    main.add_global_callback('s', search);
 
     main.add_layer(TextView::new(
 "    TAIZEN
@@ -89,7 +89,7 @@ fn search(s: &mut Cursive) {
     fn go(s: &mut Cursive, search: &str) {
         s.pop_layer();
         let mut result = vec![];
-        match get_search_results(&search) {
+        match get_search_results(search) {
             Ok(x) => result = x,
             Err(e) => pop_error(s, &handler(&e)),
         };
