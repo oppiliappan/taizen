@@ -1,24 +1,23 @@
 extern crate cursive;
+extern crate dirs;
 extern crate regex;
 extern crate reqwest;
 extern crate serde_json;
 extern crate url;
 
 use self::regex::Regex;
+
+use crate::content::url::percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
+use crate::CONFIGURATION;
+
 use cursive::theme::Effect;
 use cursive::utils::markup::StyledString;
 use cursive::views::Dialog;
 use cursive::Cursive;
 use reqwest::Url;
 use serde_json::Value;
-use CONFIGURATION;
-
-use content::url::percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
-
 use std::fs::OpenOptions;
 use std::io::prelude::*;
-
-extern crate dirs;
 
 pub fn query_url_gen(title: &str) -> Url {
     let url = Url::parse_with_params(

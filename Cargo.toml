@@ -2,19 +2,23 @@
 name = "taizen"
 license = "MIT"
 version = "0.1.0"
-authors = ["NerdyPepper <akshayoppiliappan@gmail.com>"]
+edition = "2021"
+authors = [
+  "NerdyPepper <akshayoppiliappan@gmail.com>",
+  "Christopher R. Bilger <christopherbilg@gmail.com>",
+]
 description = "TUI MediaWiki browser"
 repository = "https://github.com/NerdyPepper/taizen"
-readme = "readme.md"
+readme = "README.md"
 keywords = ["wikipedia", "tui", "app", "curses"]
 categories = ["command-line-utilities"]
 
 [dependencies]
 reqwest = "0.9.5"
-serde_json = "1.0.33"
-cursive = "0.9.2"
-regex = "1"
+serde_json = "1.0.96"
+cursive = "0.20.0"
+regex = "1.8.3"
 url = "1.7.2"
-clap = "2.32.0"
-lazy_static = "1.0.2"
+clap = "2.34.0"
+lazy_static = "1.4.0"
 dirs = "2.0.2"
