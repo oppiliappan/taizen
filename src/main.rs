@@ -59,7 +59,7 @@ fn parse_arguments() -> Configuration {
         )
         .arg(
             Arg::with_name("lang")
-                .short("l")
+                .short('l')
                 .long("lang")
                 .value_name("CODE")
                 .help("Choose the language for Wikipedia")
