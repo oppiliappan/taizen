@@ -5,15 +5,13 @@ extern crate serde_json;
 #[macro_use]
 extern crate lazy_static;
 
-use cursive::traits::*;
+use clap::{App, Arg};
 use cursive::views::{
     Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView,
 };
 use cursive::Cursive;
-
+use cursive::{traits::*, CursiveExt};
 use serde_json::Value;
-
-use clap::{App, Arg};
 
 pub mod content;
 use content::*;
@@ -40,7 +38,7 @@ fn main() {
     main.add_global_callback('s', |s| search(s));
 
     main.add_layer(TextView::new(
-"    TAIZEN
+        "    TAIZEN
 Hit s to search
 Hit q to quit
 Hit t to pop layer",
@@ -61,7 +59,7 @@ fn parse_arguments() -> Configuration {
         )
         .arg(
             Arg::with_name("lang")
-                .short("l")
+                .short('l')
                 .long("lang")
                 .value_name("CODE")
                 .help("Choose the language for Wikipedia")
@@ -111,11 +109,11 @@ fn search(s: &mut Cursive) {
     }
 
     s.add_layer(
-        Dialog::around(EditView::new().on_submit(go).with_id("search"))
+        Dialog::around(EditView::new().on_submit(go).with_name("search"))
             .title("Search for a page")
             .button("Go", |s| {
                 let search_txt = s
-                    .call_on_id("search", |v: &mut EditView| v.get_content())
+                    .call_on_name("search", |v: &mut EditView| v.get_content())
                     .unwrap();
                 go(s, &search_txt);
             })
@@ -160,9 +158,11 @@ fn on_submit(s: &mut Cursive, name: &str) {
                     .child(article_content.fixed_width(72))
                     .child(DummyView)
                     .child(links),
-            ).on_event('t', |s| match s.pop_layer() {
+            )
+            .on_event('t', |s| match s.pop_layer() {
                 _ => (),
             }),
-        ).title(name),
+        )
+        .title(name),
     );
 }
