@@ -5,9 +5,9 @@ extern crate reqwest;
 extern crate serde_json;
 extern crate url;
 
-use self::regex::Regex;
-
 use crate::CONFIGURATION;
+
+use self::regex::Regex;
 
 use cursive::theme::Effect;
 use cursive::utils::markup::StyledString;
@@ -142,11 +142,6 @@ pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
             results.push(x.to_string())
         };
     }
-
-    // let mut f = File::open("taizen_logs.txt").unwrap();
-    // for result in &results {
-    //     f.write_all(result.as_bytes()).unwrap();
-    // }
 
     Ok(results)
 }
