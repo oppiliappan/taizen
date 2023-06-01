@@ -1643,10 +1643,11 @@ dependencies = [
  "cursive",
  "dirs",
  "lazy_static",
+ "percent-encoding 2.2.0",
  "regex",
  "reqwest",
  "serde_json",
- "url 1.7.2",
+ "url 2.3.1",
 ]
 
 [[package]]
