@@ -44,6 +44,8 @@ fn parse_arguments() -> Configuration {
 }
 
 fn main() {
+    let _ = parse_arguments();
+
     // Initial setup
     let mut main = Cursive::default();
 
