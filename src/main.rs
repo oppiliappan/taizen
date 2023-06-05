@@ -2,16 +2,21 @@ extern crate clap;
 extern crate cursive;
 extern crate reqwest;
 extern crate serde_json;
+
 #[macro_use]
 extern crate lazy_static;
 
-use clap::{App, Arg};
 use cursive::views::{
     Dialog, DummyView, EditView, LinearLayout, OnEventView, SelectView, TextView,
 };
 use cursive::Cursive;
 use cursive::{traits::*, CursiveExt};
 use serde_json::Value;
+
+use clap::Parser;
+
+pub mod program_arguments;
+use program_arguments::ProgramArguments;
 
 pub mod content;
 use content::*;
@@ -27,7 +32,20 @@ lazy_static! {
     static ref CONFIGURATION: Configuration = parse_arguments();
 }
 
+fn parse_arguments() -> Configuration {
+    let program_args = ProgramArguments::parse();
+
+    let lang = program_args.lang.unwrap_or("en".to_string());
+    let wiki_url = program_args
+        .url
+        .unwrap_or(format!("https://{}.wikipedia.org", lang));
+
+    Configuration { wiki_url }
+}
+
 fn main() {
+    let _ = parse_arguments();
+
     // Initial setup
     let mut main = Cursive::default();
 
@@ -38,49 +56,10 @@ fn main() {
     main.add_global_callback('s', |s| search(s));
 
     main.add_layer(TextView::new(
-        "    TAIZEN
-Hit s to search
-Hit q to quit
-Hit t to pop layer",
+        "\t  TAIZEN\r\nHit s to search\r\nHit q to quit\r\nHit t to pop layer",
     ));
 
     main.run();
-}
-
-fn parse_arguments() -> Configuration {
-    let matches = App::new(env!("CARGO_PKG_NAME"))
-        .version(env!("CARGO_PKG_VERSION"))
-        .author(env!("CARGO_PKG_AUTHORS"))
-        .about(env!("CARGO_PKG_DESCRIPTION"))
-        .arg(
-            Arg::with_name("URL")
-                .help("The URL of the wiki to be viewed")
-                .index(1),
-        )
-        .arg(
-            Arg::with_name("lang")
-                .short('l')
-                .long("lang")
-                .value_name("CODE")
-                .help("Choose the language for Wikipedia")
-                .takes_value(true),
-        )
-        .get_matches();
-
-    if matches.is_present("HELP") {
-        std::process::exit(0);
-    }
-
-    let lang = matches
-        .value_of("lang")
-        .or(option_env!("LANG").map(|s| s.split_at(2).0))
-        .unwrap_or("en");
-    let wiki_url = matches
-        .value_of("URL")
-        .unwrap_or(&format!("https://{}.wikipedia.org", lang))
-        .to_string();
-
-    Configuration { wiki_url }
 }
 
 fn search(s: &mut Cursive) {

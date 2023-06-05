@@ -5,19 +5,21 @@ extern crate reqwest;
 extern crate serde_json;
 extern crate url;
 
-use self::regex::Regex;
-
-use crate::content::url::percent_encoding::{utf8_percent_encode, DEFAULT_ENCODE_SET};
 use crate::CONFIGURATION;
+
+use self::regex::Regex;
 
 use cursive::theme::Effect;
 use cursive::utils::markup::StyledString;
 use cursive::views::Dialog;
 use cursive::Cursive;
+use percent_encoding::{utf8_percent_encode, AsciiSet, NON_ALPHANUMERIC};
 use reqwest::Url;
 use serde_json::Value;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
+
+const FRAGMENT: &AsciiSet = NON_ALPHANUMERIC;
 
 pub fn query_url_gen(title: &str) -> Url {
     let url = Url::parse_with_params(
@@ -29,7 +31,7 @@ pub fn query_url_gen(title: &str) -> Url {
             ("indexpageids", "1"),
             (
                 "titles",
-                &utf8_percent_encode(&title.replace(" ", "_"), DEFAULT_ENCODE_SET).to_string()[..],
+                &utf8_percent_encode(&title.replace(" ", "_"), FRAGMENT).to_string()[..],
             ),
             ("redirects", "1"),
             ("pllimit", "100"),
@@ -57,7 +59,7 @@ pub fn search_url_gen(search: &str) -> Url {
             ("format", "json"),
             (
                 "search",
-                &utf8_percent_encode(&search, DEFAULT_ENCODE_SET).to_string()[..],
+                &utf8_percent_encode(&search, FRAGMENT).to_string()[..],
             ),
             ("limit", "20"),
         ],
@@ -140,11 +142,6 @@ pub fn get_search_results(search: &str) -> Result<Vec<String>, reqwest::Error> {
             results.push(x.to_string())
         };
     }
-
-    // let mut f = File::open("taizen_logs.txt").unwrap();
-    // for result in &results {
-    //     f.write_all(result.as_bytes()).unwrap();
-    // }
 
     Ok(results)
 }
